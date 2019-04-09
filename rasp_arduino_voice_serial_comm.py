@@ -58,7 +58,7 @@ def listen_to_user():
     input_command = ""
 
     #To continously listen to the user, change the statement below from "if input_command != 'exit':"
-    #to "if input_command != 'exit':"
+    #to "while input_command != 'exit':"
     
     if input_command != 'exit': 
         print('Speak now...')
