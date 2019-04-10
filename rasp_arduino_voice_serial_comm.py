@@ -6,7 +6,7 @@ import sys
 import speech_recognition as sr
 
 
-def recognize_speech_from_mic(recognizer, microphone):
+def mic_setup(recognizer, microphone):
     """Transcribe speech from recorded from `microphone`.
 
     Returns a dictionary with three keys:
@@ -55,29 +55,30 @@ def recognize_speech_from_mic(recognizer, microphone):
 
 def listen_to_user():
     # create recognizer and mic instances
-    input_command = ""
-
     #To continously listen to the user, change the statement below from "if input_command != 'exit':"
     #to "while input_command != 'exit':"
-    
-    if input_command != 'exit': 
+
+    global input_word
+
+    if input_word != 'exit': 
         print('Speak now...')
-        output = recognize_speech_from_mic(recognizer, microphone)
+        output = mic_setup(recognizer, microphone)
         if output["transcription"]:
             # show the user the transcription
             print("You said: {}".format(output["transcription"]))
-            input_command = output["transcription"]
+            input_word = output["transcription"]
         if not output["success"]:
             print("I didn't catch that. What did you say?\n")
 
         # if there was an error, stop the game
         if output["error"]:
             print("ERROR: {}".format(output["error"]))
+    #return input_word
 
 
-
-def send_data():
-    #The data is sent to arduino. But before its sent, we first setup serial communication between python and arduino. 
+def light_on():
+    #To blink the led connected to pin 13 continously, change the statement below from "if True to while True"
+        #The data is sent to arduino. But before its sent, we first setup serial communication between python and arduino. 
     try:
         ser = serial.Serial('/dev/ttyACM0', 115200, timeout = 1)
         print ("Serial port has been setup successfully at port /dev/ttyACM0")
@@ -85,14 +86,32 @@ def send_data():
     except:
         print ("Unable to open serial port")
 
-
-    #To blink the led connected to pin 13 continously, change the statement below from "if True to while True"
-    
-    if True:
+    while True:
         try:
-            data = ser.write(b'2') 
+            data = ser.write(b'1') 
         
-            print ("I have sent character of 2 to Arduino")
+            print ("I have sent character of 1 to Arduino")
+
+        except:
+            print ("Unable to send data to Arduino")
+            sys.exit(0)
+
+
+def light_off():
+    #To blink the led connected to pin 13 continously, change the statement below from "if True to while True"
+        #The data is sent to arduino. But before its sent, we first setup serial communication between python and arduino. 
+    try:
+        ser = serial.Serial('/dev/ttyACM0', 115200, timeout = 1)
+        print ("Serial port has been setup successfully at port /dev/ttyACM0")
+
+    except:
+        print ("Unable to open serial port")
+
+    while True:
+        try:
+            data = ser.write(b'0') 
+        
+            print ("I have sent character of 1 to Arduino")
 
         except:
             print ("Unable to send data to Arduino")
@@ -100,20 +119,23 @@ def send_data():
 
 
 
+input_word = ""
+
 recognizer = sr.Recognizer()
+
 microphone = sr.Microphone()
 
-recognize_speech_from_mic(recognizer, microphone)
+mic_setup(recognizer, microphone)
 
 listen_to_user()
 
 print ("Finished listening to user")
 
-send_data()
+print (input_word)
 
 
+if input_word == "light on":
+    light_on()
 
-    
-        
-
-    
+elif input_word == "light off":
+    light_off()
